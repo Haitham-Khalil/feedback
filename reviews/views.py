@@ -6,16 +6,16 @@ from .forms import ReviewForm
 
 
 def review(request):
-    # if(request.method == "POST"): # If so, we might wanna extract the submitted data
-    #     # which we receive on that request.
+    if request.method == "POST":
+        form = ReviewForm(request.POST)
 
-    #     entered_username = request.POST['username']
+        if form.is_valid():
+            print(form.cleaned_data)
+            return HttpResponseRedirect(reverse("thank_you"))
 
-    #     print(entered_username)
-
-    #     return HttpResponseRedirect(reverse("thank_you"))
-
-    form = ReviewForm()
+    else:
+        form = ReviewForm()
+        
 
     return render(request, "reviews/review.html", {"form": form})
 

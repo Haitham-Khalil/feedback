@@ -1,10 +1,10 @@
-from django.http import HttpResponseRedirect
-from django.shortcuts import render
+from typing import ClassVar
+
 from django.urls import reverse
+from django.views.generic import DetailView, CreateView, ListView, TemplateView
+
 from .forms import ReviewForm
 from .models import Review
-from django.views import View
-from django.views.generic import TemplateView,ListView,DetailView,FormView
 # Create your views here.
 
 
@@ -20,13 +20,15 @@ from django.views.generic import TemplateView,ListView,DetailView,FormView
 #             return HttpResponseRedirect(reverse("thank_you"))
 #         return render(request, "reviews/review.html", {"form": form})
 
-class ReviewView(FormView):
-    template_name = "reviews/review.html"
-    form_class = ReviewForm
-    success_url = reverse("thank_you")
-    success_message = "Thank you for your review!"
-    
-    
+
+# class ReviewView(FormView):
+#     template_name = "reviews/review.html"
+#     form_class = ReviewForm
+#     success_url = "/thank-you"
+
+#     def form_valid(self, form):
+#         form.save()
+#         return super().form_valid(form)
 
 
 class ThankYouView(TemplateView):
@@ -46,7 +48,6 @@ class ThankYouView(TemplateView):
 #         reviews = Review.objects.all()
 #         context["reviews"] = reviews
 #         return context
-
 
 
 # class SingleReviewView(TemplateView):
@@ -70,7 +71,10 @@ class SingleReviewView(DetailView):
     template_name = "reviews/single_review.html"
     model = Review
     context_object_name = "review"
-    
 
 
-    
+class ReviewView(CreateView):
+    template_name = "reviews/review.html"
+    model = Review
+    form_class = ReviewForm
+    success_url = "/thank-you"

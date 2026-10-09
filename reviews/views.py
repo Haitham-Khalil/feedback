@@ -1,7 +1,5 @@
-from typing import ClassVar
-
-from django.urls import reverse
-from django.views.generic import DetailView, CreateView, ListView, TemplateView
+from django.http import HttpResponseRedirect
+from django.views.generic import CreateView, DetailView, ListView, TemplateView, View
 
 from .forms import ReviewForm
 from .models import Review
@@ -40,27 +38,6 @@ class ThankYouView(TemplateView):
         return context
 
 
-# class ReviewsListView(TemplateView):
-#     template_name = "reviews/review_list.html"
-
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         reviews = Review.objects.all()
-#         context["reviews"] = reviews
-#         return context
-
-
-# class SingleReviewView(TemplateView):
-#     template_name = "reviews/single_review.html"
-
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         review_id = kwargs["id"]
-#         selected_review = Review.objects.get(id=review_id)
-#         context["review"] = selected_review
-#         return context
-
-
 class ReviewsListView(ListView):
     template_name = "reviews/review_list.html"
     model = Review
@@ -72,9 +49,26 @@ class SingleReviewView(DetailView):
     model = Review
     context_object_name = "review"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        loaded_review = self.object
+        request = self.request
+        favorite_id = request.session.get("favorite_review")
+        context["is_favorite"] = favorite_id == str(loaded_review.id)
+
+        return context
+
 
 class ReviewView(CreateView):
     template_name = "reviews/review.html"
     model = Review
     form_class = ReviewForm
     success_url = "/thank-you"
+
+
+class AddFavoriteView(View):
+    def post(self, request):
+        review_id = request.POST["review_id"]
+        # fav_review = Review.objects.get(pk=review_id)
+        request.session["favorite_review"] = review_id
+        return HttpResponseRedirect("/reviews/" + review_id)
